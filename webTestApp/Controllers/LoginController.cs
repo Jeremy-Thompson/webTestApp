@@ -13,18 +13,18 @@ namespace webTestApp.Controllers
         // GET: Login
         public ActionResult Index()
         {
-            return View();
+            return View("Index");
         }
         [HttpPost]
         public ActionResult Index(string Username, string Password)
         {
             if(AuthenticateAccount(Username, Password))
             {
-                return View();
+                return Redirect("../User/Index");//View("~/Views/User/Index.cshtml");  
             }
             else
             {
-                return View();
+                return View("~/Views/Login/failedLogin.cshtml");
             }
         }
         //[HttpPost]
@@ -38,8 +38,11 @@ namespace webTestApp.Controllers
         //}
         public bool AuthenticateAccount(string username, string password)
         {
-            string returned_username = null;
-            string returned_password = null;
+            string r_username = null;
+            string r_password = null;
+            string r_phone_number = null;
+            string r_email_address = null;
+            int r_id = 0;
             
             string connectionString = null;
             SqlConnection connection;
@@ -47,7 +50,7 @@ namespace webTestApp.Controllers
             string sql = null;
             SqlDataReader dataReader;
             connectionString = "Data Source=(localdb)\\ProjectsV12;Integrated Security=True;Connect Timeout=15;Encrypt=False;TrustServerCertificate=False; Initial Catalog=IOT_Sensors; User ID =admin;Password =admin";
-            sql = "Select name,password from CFG_CUSTOMER where name = '" + username + "'";
+            sql = "Select id,username,phone_number,email_address,password from CFG_USER where username = '" + username + "'";
             try
             {
                 connection = new SqlConnection(connectionString);
@@ -56,8 +59,11 @@ namespace webTestApp.Controllers
                 dataReader = command.ExecuteReader();
                 while (dataReader.Read())
                   {
-                      returned_username = dataReader.GetString(0);
-                      returned_password = dataReader.GetString(1);
+                      r_id = dataReader.GetInt32(0);
+                      r_username = dataReader.GetString(1);
+                      r_phone_number = dataReader.GetString(2);
+                      r_email_address = dataReader.GetString(3);
+                      r_password = dataReader.GetString(4);
                         
                 }
                 dataReader.Close();
@@ -69,11 +75,20 @@ namespace webTestApp.Controllers
                 Console.Write("Can not open connection ! ");
                 Console.Write(ex.Message);
             }
-            returned_username = returned_username.Trim();
-            returned_password = returned_password.Trim();
-            if ((password == returned_password) && (username == returned_username))
+            if ((r_password != null) && (r_username != null))
             {
-                return true;
+                r_username = r_username.Trim();
+                r_password = r_password.Trim();
+                if ((password == r_password) && (username == r_username))
+                {
+                    TempData["username"] = r_username;
+                    TempData["password"] = r_password;
+                    TempData["id"] = r_id;
+                    TempData["phone_number"] = r_phone_number;
+                    TempData["email_address"] = r_email_address;
+                    return true;
+                }
+                else return false;
             }
             else return false;
         }

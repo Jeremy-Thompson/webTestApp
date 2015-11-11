@@ -5,33 +5,26 @@ using System.Web;
 
 namespace webTestApp.Models
 {
-    public class Customer
+    public class User_Login
     {
-        private int _id;
-        private string _name;
-        private string _phoneNumber;
-        private string _emailAddress;
-        private string _password;
-        public bool _valid;
-        public List<SensorModule> SensorModule;
-            
-        #region c'tor
-        public Customer( int id, string name, string phoneNumber, string emailAddress,
-            string password)
+        private string emailAddress;
+        private string password;
+        private bool _valid = false;
+
+        public User_Login(string i_emailAddress, string i_password)
         {
-            _id = id;
-            _name = name;
-            _phoneNumber = phoneNumber;
-            _emailAddress = emailAddress;
-            if (ValidatePassword(password))
+
+            emailAddress = i_emailAddress;
+            if (ValidatePassword(i_password))
             {
-                _password = password;
+                password = i_password;
+                if(emailAddress != null)
+                {
+                    _valid = true;
+                }
             }
+            else password = null;
         }
-        #endregion
-
-        #region Class Methods
-
         static bool ValidatePassword(string password)
         {
             const int MIN_LENGTH = 8;
@@ -62,8 +55,9 @@ namespace webTestApp.Models
             return isValid;
 
         }
-
-        #endregion
-
+        public bool isValid()
+        {
+            return _valid;
+        }
     }
 }
